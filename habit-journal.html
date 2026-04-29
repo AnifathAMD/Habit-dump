@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Habit Journal — M0stBlessed</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #F7F4EF;
+  --surface: #FFFFFF;
+  --surface2: #F0ECE5;
+  --border: rgba(0,0,0,0.1);
+  --border2: rgba(0,0,0,0.18);
+  --text: #1A1714;
+  --text2: #6B6560;
+  --text3: #A09890;
+  --accent: #2D5A3D;
+  --accent-light: #EAF3DE;
+  --accent-mid: #639922;
+  --danger: #A32D2D;
+  --danger-light: #FCEBEB;
+  --amber: #BA7517;
+  --amber-light: #FAEEDA;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
+  --font-display: 'DM Serif Display', Georgia, serif;
+  --font-body: 'Instrument Sans', sans-serif;
+  --font-mono: 'DM Mono', monospace;
+  --nav-h: 60px;
+}
+[data-theme="dark"] {
+  --bg: #141210;
+  --surface: #1E1B18;
+  --surface2: #2A2520;
+  --border: rgba(255,255,255,0.08);
+  --border2: rgba(255,255,255,0.15);
+  --text: #F0EDE8;
+  --text2: #8C857D;
+  --text3: #5A5450;
+  --accent: #7FC87A;
+  --accent-light: #1A2E1A;
+  --accent-mid: #639922;
+  --shadow: 0 1px 3px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.2);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--font-body);
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  font-size:15px;
+  line-height:1.6;
+  transition:background 0.2s,color 0.2s;
+}
+
+/* SPLASH */
+#splash{
+  position:fixed;inset:0;background:var(--bg);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  z-index:9999;transition:opacity 0.4s;
+}
+#splash h1{font-family:var(--font-display);font-size:clamp(2rem,6vw,3.5rem);color:var(--text);letter-spacing:-0.02em}
+#splash p{color:var(--text2);margin-top:8px;font-size:14px}
+.splash-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:pulse 1.2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:0.3;transform:scale(0.8)}50%{opacity:1;transform:scale(1.2)}}
+
+/* NAV */
+nav{
+  position:fixed;bottom:0;left:0;right:0;
+  height:var(--nav-h);
+  background:var(--surface);
+  border-top:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-around;
+  z-index:100;
+  padding-bottom:env(safe-area-inset-bottom);
+}
+@media(min-width:768px){
+  nav{top:0;bottom:auto;border-top:none;border-bottom:1px solid var(--border);justify-content:center;gap:0}
+  body{padding-top:var(--nav-h)}
+}
+.nav-btn{
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  padding:8px 16px;border:none;background:transparent;cursor:pointer;
+  color:var(--text3);font-size:11px;font-family:var(--font-body);font-weight:500;
+  letter-spacing:0.04em;transition:color 0.15s;border-radius:var(--radius-sm);
+  text-transform:uppercase;
+}
+.nav-btn svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.nav-btn.active{color:var(--accent)}
+@media(min-width:768px){.nav-btn{flex-direction:row;gap:6px;font-size:12px;padding:8px 20px}}
+
+/* NAV RIGHT ACTIONS */
+.nav-actions{position:fixed;top:0;right:0;z-index:101;display:flex;gap:4px;padding:10px 12px}
+@media(max-width:767px){.nav-actions{top:auto;bottom:0;right:0;padding-bottom:calc(env(safe-area-inset-bottom) + 10px)}.nav-actions{display:none}}
+.icon-btn{
+  width:36px;height:36px;border-radius:50%;border:1px solid var(--border);
+  background:var(--surface);cursor:pointer;display:flex;align-items:center;justify-content:center;
+  color:var(--text2);transition:all 0.15s;
+}
+.icon-btn:hover{background:var(--surface2);color:var(--text)}
+.icon-btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+
+/* MAIN */
+main{max-width:680px;margin:0 auto;padding:1.5rem 1rem calc(var(--nav-h) + 2rem)}
+@media(min-width:768px){main{padding:2rem 1rem 3rem}}
+
+/* PAGES */
+.page{display:none;animation:fadeIn 0.2s ease}
+.page.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* TYPOGRAPHY */
+.page-title{
+  font-family:var(--font-display);
+  font-size:clamp(1.6rem,5vw,2.2rem);
+  color:var(--text);
+  letter-spacing:-0.02em;
+  margin-bottom:4px;
+}
+.page-sub{color:var(--text2);font-size:14px;margin-bottom:1.5rem}
+.section-label{
+  font-family:var(--font-mono);
+  font-size:10px;font-weight:500;
+  letter-spacing:0.12em;text-transform:uppercase;
+  color:var(--text3);margin-bottom:10px;
+}
+
+/* CARDS */
+.card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:1.25rem;
+  margin-bottom:1rem;
+  box-shadow:var(--shadow);
+}
+.card-accent{border-left:3px solid var(--accent)}
+
+/* INPUTS */
+input[type=text],textarea{
+  width:100%;
+  border:none;border-bottom:1px solid var(--border2);
+  background:transparent;
+  padding:8px 0;
+  font-size:15px;color:var(--text);
+  font-family:var(--font-body);
+  outline:none;resize:none;
+  transition:border-color 0.15s;
+  line-height:1.6;
+}
+input[type=text]:focus,textarea:focus{border-bottom-color:var(--accent)}
+input[type=text]::placeholder,textarea::placeholder{color:var(--text3)}
+.field-input{
+  width:100%;border:1px solid var(--border);
+  border-radius:var(--radius-sm);background:var(--surface2);
+  padding:10px 12px;font-size:14px;color:var(--text);
+  font-family:var(--font-body);outline:none;
+  transition:border-color 0.15s;
+}
+.field-input:focus{border-color:var(--accent)}
+
+/* BUTTONS */
+.btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:9px 18px;border-radius:var(--radius-sm);
+  font-size:13px;font-weight:500;font-family:var(--font-body);
+  cursor:pointer;border:1px solid var(--border2);
+  background:transparent;color:var(--text2);
+  transition:all 0.15s;letter-spacing:0.01em;
+}
+.btn:hover{background:var(--surface2);color:var(--text)}
+.btn-primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn-primary:hover{opacity:0.88;color:#fff}
+.btn-sm{padding:6px 12px;font-size:12px}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:1rem}
+
+/* HABIT CHECK */
+.habit-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 0;border-bottom:1px solid var(--border);
+}
+.habit-row:last-child{border-bottom:none}
+.habit-name-wrap{flex:1;display:flex;align-items:center;gap:10px}
+.habit-emoji{font-size:18px;line-height:1}
+.habit-label{font-size:14px;color:var(--text)}
+.check{
+  width:30px;height:30px;border-radius:50%;
+  border:1.5px solid var(--border2);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;transition:all 0.2s;background:transparent;
+}
+.check.done{background:var(--accent);border-color:var(--accent)}
+.check.done::after{
+  content:'';width:8px;height:5px;
+  border-left:2px solid #fff;border-bottom:2px solid #fff;
+  transform:rotate(-45deg) translateY(-1px);display:block;
+}
+.habit-del{
+  width:24px;height:24px;border:none;background:transparent;
+  cursor:pointer;color:var(--text3);font-size:18px;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:4px;transition:color 0.15s;margin-left:8px;
+}
+.habit-del:hover{color:var(--danger)}
+
+/* SCORE PILLS */
+.score-wrap{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}
+.score-pill{
+  width:34px;height:34px;border-radius:50%;
+  border:1px solid var(--border2);background:transparent;
+  font-size:13px;font-family:var(--font-mono);cursor:pointer;
+  color:var(--text2);transition:all 0.15s;
+  display:flex;align-items:center;justify-content:center;
+}
+.score-pill:hover{background:var(--surface2);color:var(--text)}
+.score-pill.sel{background:var(--accent);border-color:var(--accent);color:#fff}
+
+/* TRACKER GRID */
+.tracker-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tracker-table{border-collapse:collapse;min-width:100%}
+.tracker-table th{
+  font-family:var(--font-mono);font-size:9px;
+  color:var(--text3);font-weight:500;text-align:center;
+  padding:0 2px 6px;letter-spacing:0.05em;
+}
+.tracker-table td:first-child{
+  font-size:12px;color:var(--text2);white-space:nowrap;
+  padding-right:10px;max-width:110px;overflow:hidden;text-overflow:ellipsis;
+}
+.t-cell{
+  width:22px;height:22px;border-radius:4px;
+  background:var(--surface2);cursor:pointer;
+  border:1px solid transparent;transition:all 0.1s;
+  margin:1px;display:block;
+}
+.t-cell.filled{background:var(--accent);border-color:var(--accent)}
+.t-cell.today{border:1.5px solid var(--accent)}
+.t-cell:hover{opacity:0.75}
+
+/* STATS */
+.stat-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:1rem}
+.stat-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:14px 12px;text-align:center;
+}
+.stat-val{font-family:var(--font-display);font-size:2rem;color:var(--accent);line-height:1}
+.stat-lbl{font-size:11px;color:var(--text2);margin-top:4px;font-weight:500}
+
+/* DECISIONS */
+.decision-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:1rem 1.25rem;
+  margin-bottom:8px;box-shadow:var(--shadow);
+}
+.decision-date{font-family:var(--font-mono);font-size:10px;color:var(--text3);margin-bottom:4px}
+.decision-text{font-size:14px;color:var(--text);line-height:1.6}
+.badge{
+  display:inline-flex;align-items:center;gap:4px;
+  font-size:11px;font-weight:500;padding:3px 10px;
+  border-radius:20px;margin-top:8px;
+}
+.badge-pending{background:var(--surface2);color:var(--text2)}
+.badge-right{background:var(--accent-light);color:var(--accent)}
+.badge-wrong{background:var(--danger-light);color:var(--danger)}
+.outcome-btns{display:flex;gap:6px;margin-top:8px}
+
+/* BILAN BARS */
+.bilan-row{padding:10px 0;border-bottom:1px solid var(--border)}
+.bilan-row:last-child{border-bottom:none}
+.bilan-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px}
+.bilan-name{font-size:14px;color:var(--text)}
+.bilan-pct{font-family:var(--font-mono);font-size:13px;color:var(--accent);font-weight:500}
+.bar-track{height:6px;background:var(--surface2);border-radius:3px;overflow:hidden}
+.bar-fill{height:100%;border-radius:3px;background:var(--accent);transition:width 0.6s ease}
+
+/* MASTERY QUESTIONS */
+.mastery-q{padding:12px 0;border-bottom:1px solid var(--border)}
+.mastery-q:last-child{border-bottom:none}
+.mastery-q-text{font-size:14px;font-weight:500;color:var(--text);margin-bottom:8px}
+.mastery-ans{
+  width:100%;min-height:56px;border:none;
+  border-bottom:1px solid var(--border2);background:transparent;
+  font-size:13px;font-family:var(--font-body);color:var(--text);
+  resize:none;outline:none;line-height:1.7;padding:4px 0;
+}
+.mastery-ans::placeholder{color:var(--text3)}
+.mastery-ans:focus{border-bottom-color:var(--accent)}
+
+/* GDRIVE STATUS */
+.sync-bar{
+  display:flex;align-items:center;gap:8px;
+  padding:8px 12px;border-radius:var(--radius-sm);
+  font-size:12px;margin-bottom:1rem;
+}
+.sync-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.sync-ok{background:var(--accent-light);color:var(--accent)}.sync-ok .sync-dot{background:var(--accent)}
+.sync-off{background:var(--surface2);color:var(--text2)}.sync-off .sync-dot{background:var(--text3)}
+.sync-err{background:var(--danger-light);color:var(--danger)}.sync-err .sync-dot{background:var(--danger)}
+
+/* MODAL */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,0.45);
+  z-index:500;display:none;align-items:center;justify-content:center;padding:1rem;
+}
+.modal-overlay.open{display:flex}
+.modal{
+  background:var(--surface);border-radius:var(--radius);
+  padding:1.5rem;max-width:440px;width:100%;
+  box-shadow:0 8px 40px rgba(0,0,0,0.15);
+}
+.modal h3{font-family:var(--font-display);font-size:1.3rem;margin-bottom:1rem}
+
+/* LANG TOGGLE */
+.lang-chip{
+  font-family:var(--font-mono);font-size:11px;font-weight:500;
+  padding:4px 10px;border-radius:20px;border:1px solid var(--border2);
+  cursor:pointer;background:transparent;color:var(--text2);
+  transition:all 0.15s;letter-spacing:0.05em;
+}
+.lang-chip:hover{background:var(--surface2)}
+
+/* EMPTY */
+.empty{text-align:center;padding:2.5rem 1rem;color:var(--text3);font-size:14px}
+.empty-icon{font-size:2rem;margin-bottom:8px;display:block}
+
+/* TOAST */
+#toast{
+  position:fixed;bottom:calc(var(--nav-h) + 16px);left:50%;transform:translateX(-50%);
+  background:var(--text);color:var(--bg);
+  font-size:13px;padding:8px 18px;border-radius:20px;
+  opacity:0;transition:opacity 0.2s;pointer-events:none;z-index:300;
+  white-space:nowrap;font-family:var(--font-mono);
+}
+#toast.show{opacity:1}
+@media(min-width:768px){#toast{bottom:24px}}
+
+/* GOOGLE SIGN IN */
+.google-btn{
+  display:flex;align-items:center;gap:10px;
+  padding:12px 20px;border-radius:var(--radius-sm);
+  border:1.5px solid var(--border2);background:var(--surface);
+  cursor:pointer;font-size:14px;font-weight:500;
+  color:var(--text);font-family:var(--font-body);
+  transition:all 0.15s;width:100%;justify-content:center;
+}
+.google-btn:hover{background:var(--surface2)}
+
+/* SETTINGS PAGE */
+.setting-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 0;border-bottom:1px solid var(--border);
+}
+.setting-row:last-child{border-bottom:none}
+.setting-label{font-size:14px;color:var(--text)}
+.setting-sub{font-size:12px;color:var(--text2);margin-top:2px}
+.toggle{
+  width:44px;height:24px;border-radius:12px;
+  background:var(--surface2);border:1px solid var(--border2);
+  cursor:pointer;position:relative;transition:background 0.2s;flex-shrink:0;
+}
+.toggle::after{
+  content:'';width:18px;height:18px;border-radius:50%;
+  background:var(--text2);position:absolute;top:2px;left:2px;
+  transition:transform 0.2s,background 0.2s;
+}
+.toggle.on{background:var(--accent)}
+.toggle.on::after{transform:translateX(20px);background:#fff}
+
+/* ADD HABIT MODAL */
+.emoji-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin:10px 0}
+.emoji-opt{
+  height:40px;border-radius:var(--radius-sm);border:1px solid var(--border);
+  background:var(--surface2);cursor:pointer;font-size:18px;
+  display:flex;align-items:center;justify-content:center;
+  transition:all 0.15s;
+}
+.emoji-opt:hover,.emoji-opt.sel{background:var(--accent-light);border-color:var(--accent)}
+</style>
+</head>
+<body>
+
+<!-- SPLASH -->
+<div id="splash">
+  <h1 id="splash-title">Habit Journal</h1>
+  <p id="splash-sub">Loading your practice...</p>
+  <div class="splash-dot" style="margin-top:20px"></div>
+</div>
+
+<!-- NAV -->
+<nav id="main-nav">
+  <button class="nav-btn active" data-page="today" onclick="switchPage('today')">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg>
+    <span data-t="today">Aujourd'hui</span>
+  </button>
+  <button class="nav-btn" data-page="tracker" onclick="switchPage('tracker')">
+    <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+    <span data-t="tracker">Tracker</span>
+  </button>
+  <button class="nav-btn" data-page="decisions" onclick="switchPage('decisions')">
+    <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    <span data-t="decisions">Décisions</span>
+  </button>
+  <button class="nav-btn" data-page="bilan" onclick="switchPage('bilan')">
+    <svg viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+    <span data-t="bilan">Bilan</span>
+  </button>
+  <button class="nav-btn" data-page="settings" onclick="switchPage('settings')">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    <span data-t="settings">Réglages</span>
+  </button>
+</nav>
+
+<!-- TOP RIGHT ACTIONS (desktop) -->
+<div class="nav-actions">
+  <button class="lang-chip" id="lang-toggle" onclick="toggleLang()">EN</button>
+  <button class="icon-btn" onclick="toggleTheme()" title="Toggle theme">
+    <svg id="theme-icon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+  </button>
+  <button class="icon-btn" id="sync-icon-btn" onclick="manualSync()" title="Sync Drive">
+    <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+  </button>
+</div>
+
+<!-- MAIN -->
+<main>
+
+<!-- TODAY -->
+<div id="page-today" class="page active">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.5rem">
+    <div>
+      <h1 class="page-title" id="today-title">Bonjour ✦</h1>
+      <p class="page-sub" id="today-date-str"></p>
+    </div>
+    <div style="display:flex;gap:6px;align-items:center">
+      <button class="lang-chip" id="lang-toggle-mob" onclick="toggleLang()" style="display:none">EN</button>
+      <button class="icon-btn" onclick="toggleTheme()">
+        <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div id="sync-status-bar"></div>
+
+  <div class="card card-accent">
+    <div class="section-label" data-t="one-line-label">Une ligne par jour</div>
+    <input type="text" id="one-line" data-t-placeholder="one-line-ph" placeholder="En une phrase, comment s'est passée ta journée ?">
+  </div>
+
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <div class="section-label" data-t="habits-label" style="margin-bottom:0">Habitudes du jour</div>
+      <button class="btn btn-sm" onclick="openAddHabit()" data-t="add-habit-btn">+ Ajouter</button>
+    </div>
+    <div id="habits-list"></div>
+  </div>
+
+  <div class="card">
+    <div class="section-label" data-t="energy-label">Énergie générale (1–10)</div>
+    <div class="score-wrap" id="energy-score"></div>
+    <div class="section-label" style="margin-top:16px" data-t="sleep-label">Sommeil (heures)</div>
+    <div class="score-wrap" id="sleep-score"></div>
+  </div>
+
+  <div class="card">
+    <div class="section-label" data-t="nutrition-label">Nutrition</div>
+    <textarea id="nutrition-notes" rows="2" data-t-placeholder="nutrition-ph" placeholder="Notes rapides sur ta nutrition..."></textarea>
+  </div>
+
+  <div class="card">
+    <div class="section-label" data-t="reflection-label">Réflexion du jour</div>
+    <textarea id="reflection" rows="4" data-t-placeholder="reflection-ph" placeholder="Qu'est-ce qui s'est bien passé ? Qu'est-ce que j'améliorerais demain ?"></textarea>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-primary" onclick="saveDay()" data-t="save-btn">Sauvegarder la journée</button>
+  </div>
+</div>
+
+<!-- TRACKER -->
+<div id="page-tracker" class="page">
+  <h1 class="page-title" data-t="tracker-title">Tracker</h1>
+  <p class="page-sub" id="tracker-month-label"></p>
+
+  <div class="stat-grid">
+    <div class="stat-card"><div class="stat-val" id="st-streak">—</div><div class="stat-lbl" data-t="streak-lbl">Meilleure série</div></div>
+    <div class="stat-card"><div class="stat-val" id="st-pct">—</div><div class="stat-lbl" data-t="pct-lbl">Taux ce mois</div></div>
+    <div class="stat-card"><div class="stat-val" id="st-days">—</div><div class="stat-lbl" data-t="days-lbl">Jours suivis</div></div>
+  </div>
+
+  <div class="card">
+    <div class="tracker-scroll">
+      <div id="tracker-grid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- DECISIONS -->
+<div id="page-decisions" class="page">
+  <h1 class="page-title" data-t="decisions-title">Décisions</h1>
+  <p class="page-sub" data-t="decisions-sub">Journal de décisions — reviens les évaluer</p>
+
+  <div class="card">
+    <div class="section-label" data-t="new-decision-label">Nouvelle décision</div>
+    <textarea id="decision-text" rows="3" data-t-placeholder="decision-ph" placeholder="Quelle décision importante as-tu prise aujourd'hui ?"></textarea>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="logDecision()" data-t="log-decision-btn">Enregistrer</button>
+    </div>
+  </div>
+
+  <div id="decisions-list"></div>
+</div>
+
+<!-- BILAN -->
+<div id="page-bilan" class="page">
+  <h1 class="page-title" data-t="bilan-title">Bilan mensuel</h1>
+  <p class="page-sub" id="bilan-month-label"></p>
+
+  <div class="card">
+    <div class="section-label" data-t="habits-perf-label">Performance par habitude</div>
+    <div id="bilan-habits"></div>
+  </div>
+
+  <div class="card">
+    <div class="section-label" data-t="energy-avg-label">Énergie moyenne — 30 derniers jours</div>
+    <div id="energy-chart" style="margin-top:10px"></div>
+  </div>
+
+  <div class="card">
+    <div class="section-label" data-t="mastery-label">Questions de maîtrise</div>
+    <div id="mastery-questions" style="margin-top:8px"></div>
+    <div class="btn-row" style="margin-top:1.5rem">
+      <button class="btn btn-primary" onclick="exportBilan()" data-t="export-btn">Exporter le bilan</button>
+    </div>
+  </div>
+</div>
+
+<!-- SETTINGS -->
+<div id="page-settings" class="page">
+  <h1 class="page-title" data-t="settings-title">Réglages</h1>
+  <p class="page-sub" data-t="settings-sub">Personnalise ton journal</p>
+
+  <div class="card">
+    <div class="section-label" data-t="gdrive-section">Google Drive</div>
+    <div id="gdrive-section"></div>
+  </div>
+
+  <div class="card">
+    <div class="setting-row">
+      <div>
+        <div class="setting-label" data-t="dark-mode-lbl">Mode sombre</div>
+        <div class="setting-sub" data-t="dark-mode-sub">Thème adapté à la nuit</div>
+      </div>
+      <div class="toggle" id="dark-toggle" onclick="toggleTheme()"></div>
+    </div>
+    <div class="setting-row">
+      <div>
+        <div class="setting-label" data-t="lang-lbl">Langue</div>
+        <div class="setting-sub" data-t="lang-sub">Français / English</div>
+      </div>
+      <button class="lang-chip" onclick="toggleLang()" id="lang-chip-settings">FR</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-label" data-t="data-section">Données</div>
+    <div class="setting-row">
+      <div>
+        <div class="setting-label" data-t="export-data-lbl">Exporter toutes les données</div>
+        <div class="setting-sub" data-t="export-data-sub">Télécharger un fichier JSON</div>
+      </div>
+      <button class="btn btn-sm" onclick="exportAllData()" data-t="export-btn-sm">Export</button>
+    </div>
+    <div class="setting-row">
+      <div>
+        <div class="setting-label" data-t="reset-lbl" style="color:var(--danger)">Réinitialiser</div>
+        <div class="setting-sub" data-t="reset-sub">Supprimer toutes les données locales</div>
+      </div>
+      <button class="btn btn-sm" style="color:var(--danger);border-color:var(--danger)" onclick="confirmReset()" data-t="reset-btn">Reset</button>
+    </div>
+  </div>
+
+  <div style="text-align:center;margin-top:2rem">
+    <p style="font-family:var(--font-display);font-size:1.2rem;color:var(--text2)">Habit Journal</p>
+    <p style="font-size:11px;color:var(--text3);margin-top:4px;font-family:var(--font-mono)">v1.0 — Built with intention</p>
+  </div>
+</div>
+
+</main>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- ADD HABIT MODAL -->
+<div class="modal-overlay" id="habit-modal">
+  <div class="modal">
+    <h3 id="modal-title">Nouvelle habitude</h3>
+    <div class="section-label" style="margin-bottom:8px" data-t="emoji-label">Icône</div>
+    <div class="emoji-grid" id="emoji-grid"></div>
+    <div class="section-label" style="margin-bottom:6px" data-t="habit-name-label">Nom</div>
+    <input type="text" class="field-input" id="new-habit-name" placeholder="Ex: HTB / Écriture / Sport..." style="margin-bottom:16px">
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="confirmAddHabit()" data-t="confirm-add">Ajouter</button>
+      <button class="btn" onclick="closeModal('habit-modal')" data-t="cancel">Annuler</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM RESET MODAL -->
+<div class="modal-overlay" id="reset-modal">
+  <div class="modal">
+    <h3 data-t="reset-confirm-title">Réinitialiser ?</h3>
+    <p style="color:var(--text2);font-size:14px;margin:12px 0" data-t="reset-confirm-text">Cette action supprimera toutes les données locales. Elle est irréversible.</p>
+    <div class="btn-row">
+      <button class="btn" style="color:var(--danger);border-color:var(--danger)" onclick="doReset()" data-t="confirm-reset">Confirmer</button>
+      <button class="btn" onclick="closeModal('reset-modal')" data-t="cancel">Annuler</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── TRANSLATIONS ────────────────────────────────────────────────
+const T = {
+  fr: {
+    'today': "Aujourd'hui", 'tracker': 'Tracker', 'decisions': 'Décisions',
+    'bilan': 'Bilan', 'settings': 'Réglages',
+    'one-line-label': 'Une ligne par jour',
+    'one-line-ph': "En une phrase, comment s'est passée ta journée ?",
+    'habits-label': 'Habitudes du jour', 'add-habit-btn': '+ Ajouter',
+    'energy-label': 'Énergie générale (1–10)', 'sleep-label': 'Sommeil (heures)',
+    'nutrition-label': 'Nutrition', 'nutrition-ph': 'Notes rapides sur ta nutrition...',
+    'reflection-label': 'Réflexion du jour',
+    'reflection-ph': "Qu'est-ce qui s'est bien passé ? Qu'est-ce que j'améliorerais demain ?",
+    'save-btn': 'Sauvegarder la journée',
+    'tracker-title': 'Tracker', 'streak-lbl': 'Meilleure série',
+    'pct-lbl': 'Taux ce mois', 'days-lbl': 'Jours suivis',
+    'decisions-title': 'Décisions',
+    'decisions-sub': 'Journal de décisions — reviens les évaluer',
+    'new-decision-label': 'Nouvelle décision',
+    'decision-ph': "Quelle décision importante as-tu prise aujourd'hui ?",
+    'log-decision-btn': 'Enregistrer',
+    'bilan-title': 'Bilan mensuel',
+    'habits-perf-label': 'Performance par habitude',
+    'energy-avg-label': 'Énergie moyenne — 30 derniers jours',
+    'mastery-label': 'Questions de maîtrise',
+    'export-btn': 'Exporter le bilan',
+    'settings-title': 'Réglages', 'settings-sub': 'Personnalise ton journal',
+    'gdrive-section': 'Google Drive', 'dark-mode-lbl': 'Mode sombre',
+    'dark-mode-sub': 'Thème adapté à la nuit', 'lang-lbl': 'Langue',
+    'lang-sub': 'Français / English', 'data-section': 'Données',
+    'export-data-lbl': 'Exporter toutes les données',
+    'export-data-sub': 'Télécharger un fichier JSON',
+    'reset-lbl': 'Réinitialiser', 'reset-sub': 'Supprimer toutes les données locales',
+    'export-btn-sm': 'Export', 'reset-btn': 'Reset',
+    'emoji-label': 'Icône', 'habit-name-label': 'Nom',
+    'confirm-add': 'Ajouter', 'cancel': 'Annuler',
+    'reset-confirm-title': 'Réinitialiser ?',
+    'reset-confirm-text': 'Cette action supprimera toutes les données locales. Elle est irréversible.',
+    'confirm-reset': 'Confirmer',
+    'saved-toast': 'Journée sauvegardée ✓',
+    'synced-toast': 'Synchronisé ✓',
+    'sync-fail-toast': 'Erreur de sync',
+    'pending': 'En attente', 'correct': '✓ Correct', 'wrong': '✗ À revoir',
+    'outcome-right': 'Correct', 'outcome-wrong': 'À revoir', 'outcome-pending': 'En attente',
+    'sign-in-google': 'Connecter Google Drive',
+    'sign-out': 'Se déconnecter',
+    'sync-status-ok': 'Synchronisé avec Google Drive',
+    'sync-status-off': 'Stockage local uniquement',
+    'sync-status-err': 'Erreur de synchronisation',
+    'mastery-qs': [
+      'Quelle habitude ai-je le plus négligée ce mois ?',
+      'Où est-ce que je pratique sans vraiment m\'améliorer ?',
+      'Quelle décision passée s\'est avérée mauvaise, et pourquoi ?',
+      'Qu\'est-ce que je ferais différemment le mois prochain ?'
+    ],
+    'today-greeting': 'Bonjour ✦',
+    'no-habits': 'Aucune habitude. Ajoutes-en une pour commencer.',
+    'no-decisions': 'Aucune décision enregistrée.',
+    'months': ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'],
+    'days': ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'],
+  },
+  en: {
+    'today': 'Today', 'tracker': 'Tracker', 'decisions': 'Decisions',
+    'bilan': 'Review', 'settings': 'Settings',
+    'one-line-label': 'One line per day',
+    'one-line-ph': 'In one sentence, how was your day?',
+    'habits-label': "Today's habits", 'add-habit-btn': '+ Add',
+    'energy-label': 'Overall energy (1–10)', 'sleep-label': 'Sleep (hours)',
+    'nutrition-label': 'Nutrition', 'nutrition-ph': 'Quick notes on your nutrition today...',
+    'reflection-label': "Today's reflection",
+    'reflection-ph': 'What went well? What would you do better tomorrow?',
+    'save-btn': 'Save the day',
+    'tracker-title': 'Tracker', 'streak-lbl': 'Best streak',
+    'pct-lbl': 'Rate this month', 'days-lbl': 'Days tracked',
+    'decisions-title': 'Decisions',
+    'decisions-sub': 'Decision journal — come back to evaluate them',
+    'new-decision-label': 'New decision',
+    'decision-ph': 'What important decision did you make today?',
+    'log-decision-btn': 'Log it',
+    'bilan-title': 'Monthly review',
+    'habits-perf-label': 'Performance per habit',
+    'energy-avg-label': 'Average energy — last 30 days',
+    'mastery-label': 'Mastery questions',
+    'export-btn': 'Export review',
+    'settings-title': 'Settings', 'settings-sub': 'Customize your journal',
+    'gdrive-section': 'Google Drive', 'dark-mode-lbl': 'Dark mode',
+    'dark-mode-sub': 'Easy on the eyes at night', 'lang-lbl': 'Language',
+    'lang-sub': 'Français / English', 'data-section': 'Data',
+    'export-data-lbl': 'Export all data',
+    'export-data-sub': 'Download as JSON file',
+    'reset-lbl': 'Reset', 'reset-sub': 'Delete all local data',
+    'export-btn-sm': 'Export', 'reset-btn': 'Reset',
+    'emoji-label': 'Icon', 'habit-name-label': 'Name',
+    'confirm-add': 'Add habit', 'cancel': 'Cancel',
+    'reset-confirm-title': 'Reset everything?',
+    'reset-confirm-text': 'This will delete all local data. This action cannot be undone.',
+    'confirm-reset': 'Confirm',
+    'saved-toast': 'Day saved ✓',
+    'synced-toast': 'Synced ✓',
+    'sync-fail-toast': 'Sync error',
+    'pending': 'Pending', 'correct': '✓ Correct', 'wrong': '✗ Wrong',
+    'outcome-right': 'Correct', 'outcome-wrong': 'Wrong', 'outcome-pending': 'Pending',
+    'sign-in-google': 'Connect Google Drive',
+    'sign-out': 'Sign out',
+    'sync-status-ok': 'Synced with Google Drive',
+    'sync-status-off': 'Local storage only',
+    'sync-status-err': 'Sync error',
+    'mastery-qs': [
+      'Which habit did I neglect most this month?',
+      'Where am I practicing without actually improving?',
+      'Which past decision turned out to be wrong, and why?',
+      'What would I do differently next month?'
+    ],
+    'today-greeting': 'Good day ✦',
+    'no-habits': 'No habits yet. Add one to get started.',
+    'no-decisions': 'No decisions logged yet.',
+    'months': ['January','February','March','April','May','June','July','August','September','October','November','December'],
+    'days': ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
+  }
+};
+
+// ─── STATE ───────────────────────────────────────────────────────
+let lang = localStorage.getItem('hj_lang') || 'fr';
+let theme = localStorage.getItem('hj_theme') || 'light';
+let habits = JSON.parse(localStorage.getItem('hj_habits') || 'null') || [
+  {name:'HTB / Cybersec', emoji:'💻'},
+  {name:'Écriture', emoji:'✍️'},
+  {name:'Lecture', emoji:'📖'},
+  {name:'Sport', emoji:'🏃'},
+  {name:'Journaling', emoji:'📝'}
+];
+let days = JSON.parse(localStorage.getItem('hj_days') || '{}');
+let decisions = JSON.parse(localStorage.getItem('hj_decisions') || '[]');
+let checkedHabits = new Set();
+let energyVal = 0, sleepVal = 0;
+let selectedEmoji = '⭐';
+let driveConnected = false;
+let driveFileId = localStorage.getItem('hj_drive_file_id') || null;
+let accessToken = null;
+
+const today = new Date();
+const todayKey = today.toISOString().slice(0,10);
+
+// ─── INIT ─────────────────────────────────────────────────────────
+function t(key){ return (T[lang]||T.fr)[key] || key }
+
+function applyTheme(){
+  document.documentElement.setAttribute('data-theme', theme === 'dark' ? 'dark' : '');
+  const di = document.getElementById('dark-toggle');
+  if(di) di.classList.toggle('on', theme === 'dark');
+}
+
+function applyLang(){
+  document.querySelectorAll('[data-t]').forEach(el => {
+    const key = el.getAttribute('data-t');
+    if(T[lang][key]) el.textContent = T[lang][key];
+  });
+  document.querySelectorAll('[data-t-placeholder]').forEach(el => {
+    const key = el.getAttribute('data-t-placeholder');
+    if(T[lang][key]) el.placeholder = T[lang][key];
+  });
+  const lt1 = document.getElementById('lang-toggle');
+  const lt2 = document.getElementById('lang-toggle-mob');
+  const lt3 = document.getElementById('lang-chip-settings');
+  const nextLang = lang === 'fr' ? 'EN' : 'FR';
+  if(lt1) lt1.textContent = nextLang;
+  if(lt2) lt2.textContent = nextLang;
+  if(lt3) lt3.textContent = nextLang;
+}
+
+function toggleTheme(){
+  theme = theme === 'dark' ? 'light' : 'dark';
+  localStorage.setItem('hj_theme', theme);
+  applyTheme();
+}
+
+function toggleLang(){
+  lang = lang === 'fr' ? 'en' : 'fr';
+  localStorage.setItem('hj_lang', lang);
+  applyLang();
+  renderAll();
+}
+
+function showToast(msg){
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2200);
+}
+
+function switchPage(name){
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.page === name));
+  document.getElementById('page-' + name).classList.add('active');
+  if(name === 'tracker') renderTracker();
+  if(name === 'bilan') renderBilan();
+  if(name === 'decisions') renderDecisions();
+  if(name === 'settings') renderSettings();
+}
+
+// ─── TODAY ───────────────────────────────────────────────────────
+function renderToday(){
+  const months = t('months');
+  const daysArr = t('days');
+  const d = today;
+  document.getElementById('today-title').textContent = t('today-greeting');
+  document.getElementById('today-date-str').textContent =
+    `${daysArr[d.getDay()]} ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+
+  const saved = days[todayKey];
+  if(saved){
+    document.getElementById('one-line').value = saved.oneline || '';
+    document.getElementById('nutrition-notes').value = saved.nutrition || '';
+    document.getElementById('reflection').value = saved.reflection || '';
+    checkedHabits = new Set(saved.habits || []);
+    energyVal = saved.energy || 0;
+    sleepVal = saved.sleep || 0;
+  }
+
+  renderHabitsList();
+  renderScores();
+  renderSyncBar();
+}
+
+function renderHabitsList(){
+  const el = document.getElementById('habits-list');
+  if(!habits.length){
+    el.innerHTML = `<div class="empty"><span class="empty-icon">🌱</span>${t('no-habits')}</div>`;
+    return;
+  }
+  el.innerHTML = habits.map((h,i) => `
+    <div class="habit-row">
+      <div class="habit-name-wrap">
+        <span class="habit-emoji">${h.emoji}</span>
+        <span class="habit-label">${h.name}</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:4px">
+        <div class="check${checkedHabits.has(i)?' done':''}" onclick="toggleHabit(${i})"></div>
+        <button class="habit-del" onclick="removeHabit(${i})">×</button>
+      </div>
+    </div>`).join('');
+}
+
+function toggleHabit(i){
+  if(checkedHabits.has(i)) checkedHabits.delete(i); else checkedHabits.add(i);
+  renderHabitsList();
+}
+
+function removeHabit(i){
+  habits.splice(i,1);
+  saveHabits();
+  checkedHabits = new Set([...checkedHabits].filter(x=>x<habits.length));
+  renderHabitsList();
+}
+
+function renderScores(){
+  buildScore('energy-score', 10, energyVal, 'setEnergy');
+  buildScore('sleep-score', 12, sleepVal, 'setSleep');
+}
+
+function buildScore(id, max, current, fn){
+  document.getElementById(id).innerHTML = Array.from({length:max},(_,i)=>{
+    const v = i+1;
+    return `<button class="score-pill${current===v?' sel':''}" onclick="${fn}(${v})">${v}</button>`;
+  }).join('');
+}
+function setEnergy(v){ energyVal=v; buildScore('energy-score',10,v,'setEnergy'); }
+function setSleep(v){ sleepVal=v; buildScore('sleep-score',12,v,'setSleep'); }
+
+function saveDay(){
+  days[todayKey] = {
+    oneline: document.getElementById('one-line').value,
+    habits: [...checkedHabits],
+    energy: energyVal,
+    sleep: sleepVal,
+    nutrition: document.getElementById('nutrition-notes').value,
+    reflection: document.getElementById('reflection').value
+  };
+  saveDays();
+  showToast(t('saved-toast'));
+  if(driveConnected) syncToDrive();
+}
+
+// ─── TRACKER ─────────────────────────────────────────────────────
+function renderTracker(){
+  const months = t('months');
+  document.getElementById('tracker-month-label').textContent =
+    months[today.getMonth()] + ' ' + today.getFullYear();
+
+  const daysInMonth = new Date(today.getFullYear(), today.getMonth()+1, 0).getDate();
+  const monthPrefix = todayKey.slice(0,7);
+
+  let table = '<table class="tracker-table"><thead><tr><th></th>';
+  for(let d=1;d<=daysInMonth;d++) table += `<th>${d}</th>`;
+  table += '</tr></thead><tbody>';
+
+  habits.forEach((h,hi) => {
+    table += `<tr><td title="${h.name}">${h.emoji} ${h.name}</td>`;
+    for(let d=1;d<=daysInMonth;d++){
+      const k = `${monthPrefix}-${String(d).padStart(2,'0')}`;
+      const filled = days[k]?.habits?.includes(hi);
+      const isToday = d === today.getDate();
+      table += `<td><div class="t-cell${filled?' filled':''}${isToday?' today':''}" onclick="toggleCell(${hi},${d})"></div></td>`;
+    }
+    table += '</tr>';
+  });
+  table += '</tbody></table>';
+  document.getElementById('tracker-grid').innerHTML = table;
+
+  // stats
+  let tracked = 0, totalDone = 0;
+  let cur = 0, best = 0;
+  for(let d=1;d<=daysInMonth;d++){
+    const k = `${monthPrefix}-${String(d).padStart(2,'0')}`;
+    if(days[k]){
+      tracked++;
+      const c = (days[k].habits||[]).length;
+      totalDone += c;
+      if(c > 0){ cur++; if(cur>best) best=cur; } else cur=0;
+    }
+  }
+  const poss = tracked * (habits.length||1);
+  document.getElementById('st-streak').textContent = best;
+  document.getElementById('st-pct').textContent = poss ? Math.round(totalDone/poss*100)+'%' : '—';
+  document.getElementById('st-days').textContent = tracked;
+}
+
+function toggleCell(hi, d){
+  const k = `${todayKey.slice(0,7)}-${String(d).padStart(2,'0')}`;
+  if(!days[k]) days[k] = {habits:[]};
+  const idx = days[k].habits.indexOf(hi);
+  if(idx > -1) days[k].habits.splice(idx,1); else days[k].habits.push(hi);
+  saveDays();
+  renderTracker();
+}
+
+// ─── DECISIONS ───────────────────────────────────────────────────
+function logDecision(){
+  const txt = document.getElementById('decision-text').value.trim();
+  if(!txt) return;
+  decisions.unshift({text:txt, date:todayKey, outcome:'pending'});
+  saveDecisions();
+  document.getElementById('decision-text').value = '';
+  renderDecisions();
+}
+
+function setOutcome(i, val){
+  decisions[i].outcome = val;
+  saveDecisions();
+  renderDecisions();
+}
+
+function renderDecisions(){
+  const el = document.getElementById('decisions-list');
+  if(!decisions.length){
+    el.innerHTML = `<div class="empty"><span class="empty-icon">🎯</span>${t('no-decisions')}</div>`;
+    return;
+  }
+  el.innerHTML = decisions.map((d,i) => {
+    const badgeClass = d.outcome==='right'?'badge-right':d.outcome==='wrong'?'badge-wrong':'badge-pending';
+    const label = d.outcome==='right'?t('outcome-right'):d.outcome==='wrong'?t('outcome-wrong'):t('outcome-pending');
+    return `<div class="decision-card">
+      <div class="decision-date">${d.date}</div>
+      <div class="decision-text">${d.text}</div>
+      <span class="badge ${badgeClass}">${label}</span>
+      ${d.outcome==='pending' ? `
+        <div class="outcome-btns">
+          <button class="btn btn-sm" onclick="setOutcome(${i},'right')">${t('correct')}</button>
+          <button class="btn btn-sm" style="color:var(--danger);border-color:var(--danger)" onclick="setOutcome(${i},'wrong')">${t('wrong')}</button>
+        </div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+// ─── BILAN ───────────────────────────────────────────────────────
+function renderBilan(){
+  const months = t('months');
+  document.getElementById('bilan-month-label').textContent =
+    months[today.getMonth()] + ' ' + today.getFullYear();
+
+  const monthPrefix = todayKey.slice(0,7);
+  const daysInMonth = new Date(today.getFullYear(), today.getMonth()+1, 0).getDate();
+
+  // habits bars
+  const bh = document.getElementById('bilan-habits');
+  if(!habits.length){ bh.innerHTML = `<div class="empty">${t('no-habits')}</div>`; }
+  else {
+    bh.innerHTML = habits.map((_,hi) => {
+      let count = 0;
+      for(let d=1;d<=daysInMonth;d++){
+        const k = `${monthPrefix}-${String(d).padStart(2,'0')}`;
+        if(days[k]?.habits?.includes(hi)) count++;
+      }
+      const pct = Math.round(count/daysInMonth*100);
+      const h = habits[hi];
+      return `<div class="bilan-row">
+        <div class="bilan-top">
+          <span class="bilan-name">${h.emoji} ${h.name}</span>
+          <span class="bilan-pct">${count}/${daysInMonth} — ${pct}%</span>
+        </div>
+        <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
+      </div>`;
+    }).join('');
+  }
+
+  // energy chart
+  const ec = document.getElementById('energy-chart');
+  const energyData = [];
+  for(let d=1;d<=30;d++){
+    const dt = new Date(today); dt.setDate(today.getDate()-30+d);
+    const k = dt.toISOString().slice(0,10);
+    const v = days[k]?.energy || 0;
+    if(v) energyData.push({d, v, k});
+  }
+  if(!energyData.length){
+    ec.innerHTML = `<div class="empty" style="padding:1rem">${lang==='fr'?'Enregistre ton énergie quotidienne pour voir le graphe.':'Log your daily energy to see the chart.'}</div>`;
+  } else {
+    const avg = (energyData.reduce((s,x)=>s+x.v,0)/energyData.length).toFixed(1);
+    const avgLabel = lang==='fr' ? `Moyenne : <strong>${avg}/10</strong>` : `Average: <strong>${avg}/10</strong>`;
+    ec.innerHTML = `<p style="font-size:13px;color:var(--text2);margin-bottom:12px">${avgLabel}</p>` +
+      energyData.slice(-14).map(x=>`
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+          <span style="font-family:var(--font-mono);font-size:10px;color:var(--text3);width:32px">${x.k.slice(8)}</span>
+          <div style="flex:1;height:7px;background:var(--surface2);border-radius:3px;overflow:hidden">
+            <div style="height:100%;width:${x.v*10}%;background:var(--accent);border-radius:3px;transition:width 0.5s ease"></div>
+          </div>
+          <span style="font-family:var(--font-mono);font-size:11px;color:var(--accent);width:16px">${x.v}</span>
+        </div>`).join('');
+  }
+
+  // mastery questions
+  const mqs = t('mastery-qs');
+  document.getElementById('mastery-questions').innerHTML = mqs.map((q,i) => `
+    <div class="mastery-q">
+      <div class="mastery-q-text">${i+1}. ${q}</div>
+      <textarea class="mastery-ans" rows="2" placeholder="..."></textarea>
+    </div>`).join('');
+}
+
+function exportBilan(){
+  const lines = [];
+  const months = t('months');
+  const monthLabel = months[today.getMonth()] + ' ' + today.getFullYear();
+  lines.push(`# ${t('bilan-title')} — ${monthLabel}\n`);
+  const monthPrefix = todayKey.slice(0,7);
+  const dim = new Date(today.getFullYear(), today.getMonth()+1, 0).getDate();
+  habits.forEach((_,hi) => {
+    let count=0;
+    for(let d=1;d<=dim;d++){const k=`${monthPrefix}-${String(d).padStart(2,'0')}`;if(days[k]?.habits?.includes(hi))count++;}
+    lines.push(`${habits[hi].emoji} ${habits[hi].name}: ${count}/${dim} (${Math.round(count/dim*100)}%)`);
+  });
+  lines.push('\n--- Decisions ---');
+  decisions.filter(d=>d.date.startsWith(monthPrefix)).forEach(d=>{
+    lines.push(`[${d.outcome.toUpperCase()}] ${d.date}: ${d.text}`);
+  });
+  document.querySelectorAll('.mastery-ans').forEach((el,i)=>{
+    if(el.value) lines.push(`\nQ${i+1}: ${el.value}`);
+  });
+  const blob = new Blob([lines.join('\n')], {type:'text/plain'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href=url; a.download=`bilan-${monthPrefix}.txt`; a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ─── SETTINGS ────────────────────────────────────────────────────
+function renderSettings(){
+  renderGdriveSection();
+  applyTheme();
+}
+
+function renderGdriveSection(){
+  const el = document.getElementById('gdrive-section');
+  if(driveConnected){
+    el.innerHTML = `
+      <div class="setting-row" style="border-bottom:none">
+        <div>
+          <div class="setting-label">✅ ${t('sync-status-ok')}</div>
+          <div class="setting-sub" style="font-family:var(--font-mono);font-size:11px">${driveFileId || '—'}</div>
+        </div>
+        <button class="btn btn-sm" onclick="signOutDrive()">${t('sign-out')}</button>
+      </div>`;
+  } else {
+    el.innerHTML = `
+      <div style="padding:12px 0">
+        <p style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.6">
+          ${lang==='fr'
+            ? 'Connecte ton Google Drive pour synchroniser ton journal sur tous tes appareils.'
+            : 'Connect your Google Drive to sync your journal across all your devices.'}
+        </p>
+        <button class="google-btn" onclick="signInDrive()">
+          <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+          ${t('sign-in-google')}
+        </button>
+      </div>`;
+  }
+}
+
+// ─── GOOGLE DRIVE OAUTH ──────────────────────────────────────────
+// Uses Google OAuth2 implicit flow + Drive REST API
+const GDRIVE_SCOPES = 'https://www.googleapis.com/auth/drive.appdata';
+const GDRIVE_CLIENT_ID = ''; // User fills in if deploying standalone
+
+function signInDrive(){
+  // Since we can't hardcode a real client ID, we use a demo mode
+  // with localStorage persistence but show sync UI
+  showToast(lang==='fr'
+    ? 'Demo : données sauvegardées localement'
+    : 'Demo: data saved locally');
+  driveConnected = false;
+  renderSyncBar();
+  renderSettings();
+}
+
+function signOutDrive(){
+  driveConnected = false;
+  accessToken = null;
+  driveFileId = null;
+  localStorage.removeItem('hj_drive_file_id');
+  renderSyncBar();
+  renderSettings();
+  showToast(lang==='fr' ? 'Déconnecté' : 'Signed out');
+}
+
+function renderSyncBar(){
+  const el = document.getElementById('sync-status-bar');
+  if(!el) return;
+  const cls = driveConnected ? 'sync-ok' : 'sync-off';
+  const msg = driveConnected ? t('sync-status-ok') : t('sync-status-off');
+  el.innerHTML = `<div class="sync-bar ${cls}"><div class="sync-dot"></div><span>${msg}</span></div>`;
+}
+
+function manualSync(){
+  if(!driveConnected){ showToast(t('sync-status-off')); return; }
+  syncToDrive();
+}
+
+function syncToDrive(){
+  // Placeholder for real Drive sync
+  showToast(t('synced-toast'));
+}
+
+// ─── ADD HABIT MODAL ─────────────────────────────────────────────
+const EMOJIS = ['💻','✍️','📖','🏃','📝','🧘','🎯','💪','🌱','🎨','🎵','🧠','🌍','💰','🔬','📊','⚡','🛡️','🌙','☀️','🍎','💧'];
+
+function openAddHabit(){
+  selectedEmoji = EMOJIS[0];
+  document.getElementById('emoji-grid').innerHTML = EMOJIS.map(e =>
+    `<div class="emoji-opt${e===selectedEmoji?' sel':''}" onclick="selectEmoji('${e}')">${e}</div>`
+  ).join('');
+  document.getElementById('new-habit-name').value = '';
+  document.getElementById('habit-modal').classList.add('open');
+  setTimeout(()=>document.getElementById('new-habit-name').focus(), 100);
+}
+
+function selectEmoji(e){
+  selectedEmoji = e;
+  document.querySelectorAll('.emoji-opt').forEach(el => el.classList.toggle('sel', el.textContent===e));
+}
+
+function confirmAddHabit(){
+  const name = document.getElementById('new-habit-name').value.trim();
+  if(!name) return;
+  habits.push({name, emoji:selectedEmoji});
+  saveHabits();
+  closeModal('habit-modal');
+  renderHabitsList();
+  showToast(lang==='fr'?'Habitude ajoutée ✓':'Habit added ✓');
+}
+
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+
+// ─── DATA PERSISTENCE ────────────────────────────────────────────
+function saveHabits(){ localStorage.setItem('hj_habits', JSON.stringify(habits)); }
+function saveDays(){ localStorage.setItem('hj_days', JSON.stringify(days)); }
+function saveDecisions(){ localStorage.setItem('hj_decisions', JSON.stringify(decisions)); }
+
+function exportAllData(){
+  const data = {habits, days, decisions, exportedAt: new Date().toISOString()};
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href=url; a.download='habit-journal-export.json'; a.click();
+  URL.revokeObjectURL(url);
+}
+
+function confirmReset(){ document.getElementById('reset-modal').classList.add('open'); }
+
+function doReset(){
+  localStorage.removeItem('hj_habits');
+  localStorage.removeItem('hj_days');
+  localStorage.removeItem('hj_decisions');
+  habits=[]; days={}; decisions=[];
+  closeModal('reset-modal');
+  location.reload();
+}
+
+// ─── MOBILE LAYOUT ───────────────────────────────────────────────
+function checkMobile(){
+  const isMob = window.innerWidth < 768;
+  const lt = document.getElementById('lang-toggle');
+  const ltm = document.getElementById('lang-toggle-mob');
+  const actions = document.querySelector('.nav-actions');
+  if(isMob){
+    if(ltm) ltm.style.display = 'flex';
+    if(actions) actions.style.display = 'none';
+  } else {
+    if(ltm) ltm.style.display = 'none';
+    if(actions) actions.style.display = 'flex';
+  }
+}
+
+function renderAll(){
+  renderToday();
+  // Refresh current page
+  const activePage = document.querySelector('.nav-btn.active')?.dataset.page;
+  if(activePage === 'tracker') renderTracker();
+  if(activePage === 'bilan') renderBilan();
+  if(activePage === 'decisions') renderDecisions();
+  if(activePage === 'settings') renderSettings();
+}
+
+// ─── BOOT ─────────────────────────────────────────────────────────
+window.addEventListener('load', () => {
+  applyTheme();
+  applyLang();
+  renderAll();
+  checkMobile();
+  window.addEventListener('resize', checkMobile);
+
+  // Dismiss splash
+  setTimeout(() => {
+    const sp = document.getElementById('splash');
+    sp.style.opacity = '0';
+    setTimeout(() => sp.style.display = 'none', 400);
+  }, 900);
+});
+
+// Close modal on overlay click
+document.querySelectorAll('.modal-overlay').forEach(el => {
+  el.addEventListener('click', e => { if(e.target === el) el.classList.remove('open'); });
+});
+</script>
+</body>
+</html>
